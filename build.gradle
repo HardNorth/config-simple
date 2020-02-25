@@ -8,6 +8,7 @@ apply plugin: 'java'
 
 repositories {
     mavenCentral()
+    maven { url 'https://jitpack.io' }
 }
 
 java {

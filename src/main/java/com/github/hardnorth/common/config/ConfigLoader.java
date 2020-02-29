@@ -129,9 +129,13 @@ public class ConfigLoader {
 
         // Each property source overrides previously defined values (if any)
         ConfigurationSource source = new MergeConfigurationSource(sources.toArray(new ConfigurationSource[0]));
+
+        // Resolve placeholders inside properties
+        source = new PlaceholderConfigSource(source);
         final ConfigurationProvider result = new ConfigurationProviderBuilder().withConfigurationSource(source).build();
         return new InternalConfigProvider(result);
     }
+
 
     private static class InternalConfigProvider implements ConfigProvider {
         private final ConfigurationProvider config;

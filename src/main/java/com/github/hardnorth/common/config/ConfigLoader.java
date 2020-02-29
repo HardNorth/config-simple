@@ -52,8 +52,7 @@ public class ConfigLoader {
      * Constructor the Provider without default property values.
      */
     public ConfigLoader() {
-        defaultSource = null;
-        classLoader = Thread.currentThread().getContextClassLoader();
+        this(Thread.currentThread().getContextClassLoader());
     }
 
     /**
@@ -66,7 +65,17 @@ public class ConfigLoader {
     }
 
     /**
-     * Constructs the Provider using default {@link Properties}.
+     * Constructs the Provider using specific {@link ClassLoader}.
+     *
+     * @param contextClassLoader a class loader which will be used to locate properties
+     */
+    public ConfigLoader(ClassLoader contextClassLoader) {
+        defaultSource = null;
+        classLoader = contextClassLoader;
+    }
+
+    /**
+     * Constructs the Provider using default {@link Properties} and specific {@link ClassLoader}.
      *
      * @param defaultProperties  default property values
      * @param contextClassLoader a class loader which will be used to locate properties

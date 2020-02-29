@@ -30,7 +30,7 @@ public class ConfigLoaderTest {
 
     @Test
     public void test_default_file_load() {
-        ConfigLoader loader = new ConfigLoader();
+        ConfigLoader loader = new ConfigLoader(ConfigLoaderTest.class.getClassLoader());
         String propertyValue = loader.get().getProperty(PROPERTY_PREFIX + "file", String.class);
         assertThat(propertyValue, equalTo(ConfigLoader.DEFAULT_ENVIRONMENT_NAME + ".properties"));
     }
@@ -39,7 +39,7 @@ public class ConfigLoaderTest {
     public void test_not_default_file_load() {
         System.setProperty(ConfigLoader.ENVIRONMENT_PROPERTY, "env");
         try {
-            ConfigLoader loader = new ConfigLoader();
+            ConfigLoader loader = new ConfigLoader(ConfigLoaderTest.class.getClassLoader());
             String propertyValue = loader.get().getProperty(PROPERTY_PREFIX + "file", String.class);
             assertThat(propertyValue, equalTo("env.properties"));
         } finally {
@@ -51,7 +51,7 @@ public class ConfigLoaderTest {
     public void test_different_types_of_property_load() {
         System.setProperty(ConfigLoader.ENVIRONMENT_PROPERTY, "different_types");
         try {
-            ConfigLoader loader = new ConfigLoader();
+            ConfigLoader loader = new ConfigLoader(ConfigLoaderTest.class.getClassLoader());
             String stringValue = loader.get().getProperty(PROPERTY_PREFIX + "string", String.class);
             assertThat(stringValue, equalTo("my string property"));
 
@@ -78,7 +78,7 @@ public class ConfigLoaderTest {
     public void test_placeholder_load_error() {
         System.setProperty(ConfigLoader.ENVIRONMENT_PROPERTY, "placeholder_error");
         try {
-            ConfigLoader loader = new ConfigLoader();
+            ConfigLoader loader = new ConfigLoader(ConfigLoaderTest.class.getClassLoader());
             Assertions.assertThrows(IllegalArgumentException.class,
                     () -> loader.get().getProperty(PROPERTY_PREFIX + "placeholder.recursive.not.resolved", String.class));
         } finally {
@@ -90,7 +90,7 @@ public class ConfigLoaderTest {
     public void test_no_placeholder_load() {
         System.setProperty(ConfigLoader.ENVIRONMENT_PROPERTY, "placeholder");
         try {
-            ConfigLoader loader = new ConfigLoader();
+            ConfigLoader loader = new ConfigLoader(ConfigLoaderTest.class.getClassLoader());
             Assertions.assertThrows(NoSuchElementException.class,
                     () -> loader.get().getProperty(PROPERTY_PREFIX + "placeholder.not.resolved", String.class));
         } finally {
@@ -102,7 +102,7 @@ public class ConfigLoaderTest {
     public void test_placeholder_load() {
         System.setProperty(ConfigLoader.ENVIRONMENT_PROPERTY, "placeholder");
         try {
-            ConfigLoader loader = new ConfigLoader();
+            ConfigLoader loader = new ConfigLoader(ConfigLoaderTest.class.getClassLoader());
             Boolean booleanValue = loader.get().getProperty(PROPERTY_PREFIX + "placeholder.boolean.value", Boolean.class);
             assertThat(booleanValue, equalTo(Boolean.TRUE));
 
@@ -129,7 +129,7 @@ public class ConfigLoaderTest {
     public void test_placeholder_default_value_load() {
         System.setProperty(ConfigLoader.ENVIRONMENT_PROPERTY, "placeholder_default");
         try {
-            ConfigLoader loader = new ConfigLoader();
+            ConfigLoader loader = new ConfigLoader(ConfigLoaderTest.class.getClassLoader());
             String stringValue = loader.get().getProperty(PROPERTY_PREFIX + "placeholder.default.string", String.class);
             assertThat(stringValue, equalTo("my default string property"));
 

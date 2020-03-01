@@ -148,7 +148,7 @@ public class ConfigLoaderTest {
                 Assertions.assertThrows(IllegalArgumentException.class,
                         () -> loader.get().getProperty(PROPERTY_PREFIX + "placeholder.bare.recursive.resolve", String.class));
 
-        assertThat(exc.getMessage(), equalTo("Unable to find placeholder value: FIRST_PLACEHOLDER_PLACEHOLDER"));
+        assertThat(exc.getMessage(), equalTo("Unable to find placeholder value 'FIRST_PLACEHOLDER_PLACEHOLDER' for string: $$FIRST_PLACEHOLDER_PLACEHOLDER"));
     }
 
     @Test

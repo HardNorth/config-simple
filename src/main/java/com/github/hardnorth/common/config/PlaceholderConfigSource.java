@@ -133,7 +133,7 @@ class PlaceholderConfigSource implements ConfigurationSource {
                         if (cutOffPlaceholder(result, placeholder.getKey()).isEmpty()) {
                             return Optional.empty();
                         } else {
-                            throw new IllegalArgumentException("Unable to find placeholder value: " + placeholderValue);
+                            throw new IllegalArgumentException("Unable to find placeholder value '" + placeholderValue + "' for string: " + value);
                         }
                     } else {
                         if (cutOffPlaceholder(result, placeholder.getKey()).isEmpty()) {

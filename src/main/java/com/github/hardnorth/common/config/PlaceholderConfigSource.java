@@ -25,12 +25,14 @@ import java.util.Properties;
 import java.util.stream.Collectors;
 
 class PlaceholderConfigSource implements ConfigurationSource {
-    private static final char DEFAULT_VALUE_SEPARATOR = ':';
+    public static final char DEFAULT_VALUE_SEPARATOR = ':';
 
-    private static final char PLACEHOLDER_KEY = '$';
-    private static final char PLACEHOLDER_EMBRACE_START_KEY = '{';
-    private static final char PLACEHOLDER_EMBRACE_END_KEY = '}';
-    private static final char PLACEHOLDER_END_KEY = ' ';
+    public static final char PLACEHOLDER_KEY = '$';
+    public static final char PLACEHOLDER_EMBRACE_START_KEY = '{';
+    public static final char PLACEHOLDER_EMBRACE_END_KEY = '}';
+    public static final char PLACEHOLDER_END_KEY = ' ';
+
+    public static final int MAX_RESOLVE_DEPTH = 10;
 
     private final ConfigurationSource base;
 

@@ -48,14 +48,14 @@ class PlaceholderConfigSource implements ConfigurationSource {
     private static Pair<Pair<Integer, Integer>, Pair<Integer, Integer>> processBarePlaceholder(final String source, final int placeholderStart) {
         int placeholderEnd = source.indexOf(PLACEHOLDER_END_KEY, placeholderStart + 1);
         if (placeholderEnd <= 0) {
-            placeholderEnd = source.length() - 1;
+            placeholderEnd = source.length();
         }
         Pair<Pair<Integer, Integer>, Pair<Integer, Integer>> subPlaceholder =
                 findPlaceholder(source.substring(placeholderStart + 1, placeholderEnd));
         if (subPlaceholder != null) {
             return shiftPlaceholder(placeholderStart + 1, subPlaceholder);
         }
-        return Pair.of(Pair.of(placeholderStart, placeholderEnd + 1), Pair.of(placeholderStart + 1, placeholderEnd));
+        return Pair.of(Pair.of(placeholderStart, placeholderEnd), Pair.of(placeholderStart + 1, placeholderEnd));
     }
 
     private static Pair<Pair<Integer, Integer>, Pair<Integer, Integer>> processEmbracedPlaceholder(final String source, final int placeholderStart) {

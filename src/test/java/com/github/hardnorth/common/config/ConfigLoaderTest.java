@@ -176,8 +176,8 @@ public class ConfigLoaderTest {
         stringValue = loader.get().getProperty(PROPERTY_PREFIX + "placeholder.bare.empty.value.space.after", String.class);
         assertThat(stringValue, equalTo(" "));
 
-        stringValue = loader.get().getProperty(PROPERTY_PREFIX + "placeholder.bare.empty.value.space.before", String.class);
-        assertThat(stringValue, equalTo(" "));
+        stringValue = loader.get().getProperty(PROPERTY_PREFIX + "placeholder.bare.empty.value.char.before", String.class);
+        assertThat(stringValue, equalTo("_"));
     }
 
     // TODO: finish for one_in_another_placeholder, maximum_depth_placeholder, infinite_recursive_placeholder

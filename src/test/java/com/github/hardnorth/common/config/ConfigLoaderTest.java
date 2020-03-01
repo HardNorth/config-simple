@@ -109,6 +109,9 @@ public class ConfigLoaderTest {
 
         stringValue = loader.get().getProperty(PROPERTY_PREFIX + "placeholder.empty.value", String.class);
         assertThat(stringValue, emptyString());
+
+        stringValue = loader.get().getProperty(PROPERTY_PREFIX + "placeholder.two.values", String.class);
+        assertThat(stringValue, equalTo("SECOND my string property"));
     }
 
     @Test
@@ -133,5 +136,47 @@ public class ConfigLoaderTest {
 
         byteValue = loader.get().getProperty(PROPERTY_PREFIX + "placeholder.default.recursive", Byte.class);
         assertThat(byteValue, equalTo((byte) 3));
+    }
+
+    @Test
+    public void test_bare_placeholder_recursive_error() {
+        Properties props = new Properties();
+        props.setProperty(ConfigLoader.ENVIRONMENT_PROPERTY, "bare_placeholder_error");
+        ConfigLoader loader = new ConfigLoader(props, ConfigLoaderTest.class.getClassLoader());
+
+        IllegalArgumentException exc =
+                Assertions.assertThrows(IllegalArgumentException.class,
+                        () -> loader.get().getProperty(PROPERTY_PREFIX + "placeholder.bare.recursive.resolve", String.class));
+
+        assertThat(exc.getMessage(), equalTo("Unable to find placeholder value: FIRST_PLACEHOLDER_PLACEHOLDER"));
+    }
+
+    @Test
+    public void test_bare_placeholder_value_not_found() {
+        Properties props = new Properties();
+        props.setProperty(ConfigLoader.ENVIRONMENT_PROPERTY, "bare_placeholder");
+        ConfigLoader loader = new ConfigLoader(props, ConfigLoaderTest.class.getClassLoader());
+
+        Assertions.assertThrows(NoSuchElementException.class,
+                () -> loader.get().getProperty(PROPERTY_PREFIX + "placeholder.bare.not.resolved", String.class));
+    }
+
+    @Test
+    public void test_bare_placeholder_load() {
+        Properties props = new Properties();
+        props.setProperty(ConfigLoader.ENVIRONMENT_PROPERTY, "bare_placeholder");
+        ConfigLoader loader = new ConfigLoader(props, ConfigLoaderTest.class.getClassLoader());
+
+        String stringValue = loader.get().getProperty(PROPERTY_PREFIX + "placeholder.bare.default.value", String.class);
+        assertThat(stringValue, equalTo("my default value"));
+
+        stringValue = loader.get().getProperty(PROPERTY_PREFIX + "placeholder.bare.two.values", String.class);
+        assertThat(stringValue, equalTo("SECOND 2"));
+
+        stringValue = loader.get().getProperty(PROPERTY_PREFIX + "placeholder.bare.empty.value.space.after", String.class);
+        assertThat(stringValue, equalTo(" "));
+
+        stringValue = loader.get().getProperty(PROPERTY_PREFIX + "placeholder.bare.empty.value.space.before", String.class);
+        assertThat(stringValue, equalTo(" "));
     }
 }

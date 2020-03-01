@@ -15,24 +15,81 @@
  */
 package com.github.hardnorth.common.config;
 
+import org.apache.commons.lang3.tuple.Pair;
 import org.cfg4j.source.ConfigurationSource;
 import org.cfg4j.source.context.environment.Environment;
 
 import java.util.Map;
 import java.util.Optional;
 import java.util.Properties;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 class PlaceholderConfigSource implements ConfigurationSource {
-    private static final Pattern PLACEHOLDER_PATTERN = Pattern.compile("\\$\\{([^{}]+)}");
     private static final char DEFAULT_VALUE_SEPARATOR = ':';
+
+    private static final char PLACEHOLDER_KEY = '$';
+    private static final char PLACEHOLDER_EMBRACE_START_KEY = '{';
+    private static final char PLACEHOLDER_EMBRACE_END_KEY = '}';
+    private static final char PLACEHOLDER_END_KEY = ' ';
 
     private final ConfigurationSource base;
 
     public PlaceholderConfigSource(final ConfigurationSource source) {
         base = source;
+    }
+
+    private static Pair<Pair<Integer, Integer>, Pair<Integer, Integer>> shiftPlaceholder(int num, Pair<Pair<Integer, Integer>, Pair<Integer, Integer>> placeholder) {
+        return Pair.of(Pair.of(num + placeholder.getKey().getLeft(), num + placeholder.getKey().getRight()),
+                Pair.of(num + placeholder.getValue().getLeft(), num + placeholder.getValue().getRight()));
+    }
+
+    private static Pair<Pair<Integer, Integer>, Pair<Integer, Integer>> processBarePlaceholder(final String source, final int placeholderStart) {
+        int placeholderEnd = source.indexOf(PLACEHOLDER_END_KEY, placeholderStart + 1);
+        if (placeholderEnd <= 0) {
+            placeholderEnd = source.length() - 1;
+        }
+        Pair<Pair<Integer, Integer>, Pair<Integer, Integer>> subPlaceholder =
+                findPlaceholder(source.substring(placeholderStart + 1, placeholderEnd));
+        if (subPlaceholder != null) {
+            return shiftPlaceholder(placeholderStart + 1, subPlaceholder);
+        }
+        return Pair.of(Pair.of(placeholderStart, placeholderEnd + 1), Pair.of(placeholderStart + 1, placeholderEnd));
+    }
+
+    private static Pair<Pair<Integer, Integer>, Pair<Integer, Integer>> processEmbracedPlaceholder(final String source, final int placeholderStart) {
+        int placeholderEnd = source.indexOf(PLACEHOLDER_EMBRACE_END_KEY, placeholderStart + 2);
+        if (placeholderEnd < 0) {
+            throw new IllegalArgumentException("Unable to find placeholder closing key, please check your placeholder syntax. Embraced placeholders must be closed.");
+        }
+        Pair<Pair<Integer, Integer>, Pair<Integer, Integer>> subPlaceholder =
+                findPlaceholder(source.substring(placeholderStart + 2, placeholderEnd + 1));
+        if (subPlaceholder != null) {
+            return shiftPlaceholder(placeholderStart + 2, subPlaceholder);
+        }
+        return Pair.of(Pair.of(placeholderStart, placeholderEnd + 1), Pair.of(placeholderStart + 2, placeholderEnd));
+    }
+
+    /**
+     * I can't use RegEx because for some systems it doesn't escape source Strings and count '$' as group reference.
+     *
+     * @param source source String to extract placeholder
+     * @return {@link Pair} of placeholder first and last index and placeholder value first and last index or null if not found
+     */
+    private static Pair<Pair<Integer, Integer>, Pair<Integer, Integer>> findPlaceholder(final String source) {
+        if (source == null || source.length() <= 1) {
+            return null;
+        }
+
+        int placeholderStart = source.indexOf(PLACEHOLDER_KEY);
+        if (placeholderStart < 0 || placeholderStart >= (source.length() - 1)) {
+            return null;
+        }
+
+        if (source.charAt(placeholderStart + 1) != PLACEHOLDER_EMBRACE_START_KEY) {
+            return processBarePlaceholder(source, placeholderStart);
+        } else {
+            return processEmbracedPlaceholder(source, placeholderStart);
+        }
     }
 
     private static Object resolve(final String placeholder, final Properties source) {
@@ -49,6 +106,14 @@ class PlaceholderConfigSource implements ConfigurationSource {
         return value;
     }
 
+    private static String cutOffPlaceholder(final String source, final Pair<Integer, Integer> placeholder) {
+        return replacePlaceholder(source, "", placeholder);
+    }
+
+    private static String replacePlaceholder(final String source, final String value, final Pair<Integer, Integer> placeholder) {
+        return source.substring(0, placeholder.getLeft()) + value + source.substring(placeholder.getRight());
+    }
+
     public Properties resolvePlaceholders(final Properties source) {
         Map<String, Object> processingResult = source.entrySet().stream().collect(Collectors.toMap(k -> (String) k.getKey(), v -> {
             Object value = v.getValue();
@@ -57,22 +122,22 @@ class PlaceholderConfigSource implements ConfigurationSource {
                 return Optional.of(value);
             }
             String result = (String) value;
-            for (int i = 0; ; i++) {
-                Matcher m = PLACEHOLDER_PATTERN.matcher(result);
-                if (m.find()) {
-                    String placeholder = m.group(1);
-                    Object placeholderValue = resolve(placeholder, source);
-                    if (placeholderValue == null) {
-                        if (m.replaceFirst("").isEmpty()) {
+            while (true) {
+                Pair<Pair<Integer, Integer>, Pair<Integer, Integer>> placeholder = findPlaceholder(result);
+                if (placeholder != null) {
+                    String placeholderValue = result.substring(placeholder.getValue().getLeft(), placeholder.getValue().getRight());
+                    Object resolvedPlaceholderValue = resolve(placeholderValue, source);
+                    if (resolvedPlaceholderValue == null) {
+                        if (cutOffPlaceholder(result, placeholder.getKey()).isEmpty()) {
                             return Optional.empty();
                         } else {
-                            throw new IllegalArgumentException("Unable to find placeholder value: " + placeholder);
+                            throw new IllegalArgumentException("Unable to find placeholder value: " + placeholderValue);
                         }
                     } else {
-                        if (m.replaceFirst("").isEmpty()) {
-                            return Optional.of(placeholderValue);
+                        if (cutOffPlaceholder(result, placeholder.getKey()).isEmpty()) {
+                            return Optional.of(resolvedPlaceholderValue);
                         } else {
-                            result = m.replaceFirst(placeholderValue.toString());
+                            result = replacePlaceholder(result, resolvedPlaceholderValue.toString(), placeholder.getKey());
                         }
                     }
                 } else {
@@ -87,7 +152,7 @@ class PlaceholderConfigSource implements ConfigurationSource {
     }
 
     @Override
-    public Properties getConfiguration(Environment environment) {
+    public Properties getConfiguration(final Environment environment) {
         return resolvePlaceholders(base.getConfiguration(environment));
     }
 

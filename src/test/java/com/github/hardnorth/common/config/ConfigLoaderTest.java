@@ -19,6 +19,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.util.NoSuchElementException;
+import java.util.Properties;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.emptyString;
@@ -37,118 +38,100 @@ public class ConfigLoaderTest {
 
     @Test
     public void test_not_default_file_load() {
-        System.setProperty(ConfigLoader.ENVIRONMENT_PROPERTY, "env");
-        try {
-            ConfigLoader loader = new ConfigLoader(ConfigLoaderTest.class.getClassLoader());
-            String propertyValue = loader.get().getProperty(PROPERTY_PREFIX + "file", String.class);
-            assertThat(propertyValue, equalTo("env.properties"));
-        } finally {
-            System.clearProperty(ConfigLoader.ENVIRONMENT_PROPERTY);
-        }
+        Properties props = new Properties();
+        props.setProperty(ConfigLoader.ENVIRONMENT_PROPERTY, "env");
+        ConfigLoader loader = new ConfigLoader(props, ConfigLoaderTest.class.getClassLoader());
+        String propertyValue = loader.get().getProperty(PROPERTY_PREFIX + "file", String.class);
+        assertThat(propertyValue, equalTo("env.properties"));
     }
 
     @Test
     public void test_different_types_of_property_load() {
-        System.setProperty(ConfigLoader.ENVIRONMENT_PROPERTY, "different_types");
-        try {
-            ConfigLoader loader = new ConfigLoader(ConfigLoaderTest.class.getClassLoader());
-            String stringValue = loader.get().getProperty(PROPERTY_PREFIX + "string", String.class);
-            assertThat(stringValue, equalTo("my string property"));
+        Properties props = new Properties();
+        props.setProperty(ConfigLoader.ENVIRONMENT_PROPERTY, "different_types");
+        ConfigLoader loader = new ConfigLoader(props, ConfigLoaderTest.class.getClassLoader());
+        String stringValue = loader.get().getProperty(PROPERTY_PREFIX + "string", String.class);
+        assertThat(stringValue, equalTo("my string property"));
 
-            Boolean booleanValue = loader.get().getProperty(PROPERTY_PREFIX + "boolean", Boolean.class);
-            assertThat(booleanValue, equalTo(Boolean.TRUE));
+        Boolean booleanValue = loader.get().getProperty(PROPERTY_PREFIX + "boolean", Boolean.class);
+        assertThat(booleanValue, equalTo(Boolean.TRUE));
 
-            Byte byteValue = loader.get().getProperty(PROPERTY_PREFIX + "byte", Byte.class);
-            assertThat(byteValue, equalTo((byte) 1));
+        Byte byteValue = loader.get().getProperty(PROPERTY_PREFIX + "byte", Byte.class);
+        assertThat(byteValue, equalTo((byte) 1));
 
-            Integer intValue = loader.get().getProperty(PROPERTY_PREFIX + "int", Integer.class);
-            assertThat(intValue, equalTo(1000));
+        Integer intValue = loader.get().getProperty(PROPERTY_PREFIX + "int", Integer.class);
+        assertThat(intValue, equalTo(1000));
 
-            Long longValue = loader.get().getProperty(PROPERTY_PREFIX + "long", Long.class);
-            assertThat(longValue, equalTo(100000000000L));
+        Long longValue = loader.get().getProperty(PROPERTY_PREFIX + "long", Long.class);
+        assertThat(longValue, equalTo(100000000000L));
 
-            Character charValue = loader.get().getProperty(PROPERTY_PREFIX + "char", Character.class);
-            assertThat(charValue, equalTo('c'));
-        } finally {
-            System.clearProperty(ConfigLoader.ENVIRONMENT_PROPERTY);
-        }
+        Character charValue = loader.get().getProperty(PROPERTY_PREFIX + "char", Character.class);
+        assertThat(charValue, equalTo('c'));
     }
 
     @Test
     public void test_placeholder_load_error() {
-        System.setProperty(ConfigLoader.ENVIRONMENT_PROPERTY, "placeholder_error");
-        try {
-            ConfigLoader loader = new ConfigLoader(ConfigLoaderTest.class.getClassLoader());
-            Assertions.assertThrows(IllegalArgumentException.class,
-                    () -> loader.get().getProperty(PROPERTY_PREFIX + "placeholder.recursive.not.resolved", String.class));
-        } finally {
-            System.clearProperty(ConfigLoader.ENVIRONMENT_PROPERTY);
-        }
+        Properties props = new Properties();
+        props.setProperty(ConfigLoader.ENVIRONMENT_PROPERTY, "placeholder_error");
+        ConfigLoader loader = new ConfigLoader(props, ConfigLoaderTest.class.getClassLoader());
+        Assertions.assertThrows(IllegalArgumentException.class,
+                () -> loader.get().getProperty(PROPERTY_PREFIX + "placeholder.recursive.not.resolved", String.class));
     }
 
     @Test
     public void test_no_placeholder_load() {
-        System.setProperty(ConfigLoader.ENVIRONMENT_PROPERTY, "placeholder");
-        try {
-            ConfigLoader loader = new ConfigLoader(ConfigLoaderTest.class.getClassLoader());
-            Assertions.assertThrows(NoSuchElementException.class,
-                    () -> loader.get().getProperty(PROPERTY_PREFIX + "placeholder.not.resolved", String.class));
-        } finally {
-            System.clearProperty(ConfigLoader.ENVIRONMENT_PROPERTY);
-        }
+        Properties props = new Properties();
+        props.setProperty(ConfigLoader.ENVIRONMENT_PROPERTY, "placeholder");
+        ConfigLoader loader = new ConfigLoader(props, ConfigLoaderTest.class.getClassLoader());
+        Assertions.assertThrows(NoSuchElementException.class,
+                () -> loader.get().getProperty(PROPERTY_PREFIX + "placeholder.not.resolved", String.class));
     }
 
     @Test
     public void test_placeholder_load() {
-        System.setProperty(ConfigLoader.ENVIRONMENT_PROPERTY, "placeholder");
-        try {
-            ConfigLoader loader = new ConfigLoader(ConfigLoaderTest.class.getClassLoader());
-            Boolean booleanValue = loader.get().getProperty(PROPERTY_PREFIX + "placeholder.boolean.value", Boolean.class);
-            assertThat(booleanValue, equalTo(Boolean.TRUE));
+        Properties props = new Properties();
+        props.setProperty(ConfigLoader.ENVIRONMENT_PROPERTY, "placeholder");
+        ConfigLoader loader = new ConfigLoader(props, ConfigLoaderTest.class.getClassLoader());
+        Boolean booleanValue = loader.get().getProperty(PROPERTY_PREFIX + "placeholder.boolean.value", Boolean.class);
+        assertThat(booleanValue, equalTo(Boolean.TRUE));
 
-            String stringValue = loader.get().getProperty(PROPERTY_PREFIX + "placeholder.string.value", String.class);
-            assertThat(stringValue, equalTo("my string property"));
+        String stringValue = loader.get().getProperty(PROPERTY_PREFIX + "placeholder.string.value", String.class);
+        assertThat(stringValue, equalTo("my string property"));
 
-            Byte byteValue = loader.get().getProperty(PROPERTY_PREFIX + "placeholder.recursive.resolve", Byte.class);
-            assertThat(byteValue, equalTo((byte) 2));
+        Byte byteValue = loader.get().getProperty(PROPERTY_PREFIX + "placeholder.recursive.resolve", Byte.class);
+        assertThat(byteValue, equalTo((byte) 2));
 
-            stringValue = loader.get().getProperty(PROPERTY_PREFIX + "placeholder.part.value.string", String.class);
-            assertThat(stringValue, equalTo("this is my string property"));
+        stringValue = loader.get().getProperty(PROPERTY_PREFIX + "placeholder.part.value.string", String.class);
+        assertThat(stringValue, equalTo("this is my string property"));
 
-            Integer intValue = loader.get().getProperty(PROPERTY_PREFIX + "placeholder.part.value.int", Integer.class);
-            assertThat(intValue, equalTo(10002));
+        Integer intValue = loader.get().getProperty(PROPERTY_PREFIX + "placeholder.part.value.int", Integer.class);
+        assertThat(intValue, equalTo(10002));
 
-            stringValue = loader.get().getProperty(PROPERTY_PREFIX + "placeholder.empty.value", String.class);
-            assertThat(stringValue, emptyString());
-        } finally {
-            System.clearProperty(ConfigLoader.ENVIRONMENT_PROPERTY);
-        }
+        stringValue = loader.get().getProperty(PROPERTY_PREFIX + "placeholder.empty.value", String.class);
+        assertThat(stringValue, emptyString());
     }
 
     @Test
     public void test_placeholder_default_value_load() {
-        System.setProperty(ConfigLoader.ENVIRONMENT_PROPERTY, "placeholder_default");
-        try {
-            ConfigLoader loader = new ConfigLoader(ConfigLoaderTest.class.getClassLoader());
-            String stringValue = loader.get().getProperty(PROPERTY_PREFIX + "placeholder.default.string", String.class);
-            assertThat(stringValue, equalTo("my default string property"));
+        Properties props = new Properties();
+        props.setProperty(ConfigLoader.ENVIRONMENT_PROPERTY, "placeholder_default");
+        ConfigLoader loader = new ConfigLoader(props, ConfigLoaderTest.class.getClassLoader());
+        String stringValue = loader.get().getProperty(PROPERTY_PREFIX + "placeholder.default.string", String.class);
+        assertThat(stringValue, equalTo("my default string property"));
 
-            stringValue = loader.get().getProperty(PROPERTY_PREFIX + "placeholder.default.empty.string", String.class);
-            assertThat(stringValue, emptyString());
+        stringValue = loader.get().getProperty(PROPERTY_PREFIX + "placeholder.default.empty.string", String.class);
+        assertThat(stringValue, emptyString());
 
-            Byte byteValue = loader.get().getProperty(PROPERTY_PREFIX + "placeholder.recursive.not.resolved.default", Byte.class);
-            assertThat(byteValue, equalTo((byte) 3));
+        Byte byteValue = loader.get().getProperty(PROPERTY_PREFIX + "placeholder.recursive.not.resolved.default", Byte.class);
+        assertThat(byteValue, equalTo((byte) 3));
 
-            stringValue = loader.get().getProperty(PROPERTY_PREFIX + "placeholder.default.string.colons", String.class);
-            assertThat(stringValue, equalTo("my:default:string:property"));
+        stringValue = loader.get().getProperty(PROPERTY_PREFIX + "placeholder.default.string.colons", String.class);
+        assertThat(stringValue, equalTo("my:default:string:property"));
 
-            Integer intValue = loader.get().getProperty(PROPERTY_PREFIX + "placeholder.default.int", Integer.class);
-            assertThat(intValue, equalTo(10003));
+        Integer intValue = loader.get().getProperty(PROPERTY_PREFIX + "placeholder.default.int", Integer.class);
+        assertThat(intValue, equalTo(10003));
 
-            byteValue = loader.get().getProperty(PROPERTY_PREFIX + "placeholder.default.recursive", Byte.class);
-            assertThat(byteValue, equalTo((byte) 3));
-        } finally {
-            System.clearProperty(ConfigLoader.ENVIRONMENT_PROPERTY);
-        }
+        byteValue = loader.get().getProperty(PROPERTY_PREFIX + "placeholder.default.recursive", Byte.class);
+        assertThat(byteValue, equalTo((byte) 3));
     }
 }

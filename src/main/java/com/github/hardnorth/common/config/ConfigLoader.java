@@ -85,15 +85,14 @@ public class ConfigLoader {
         classLoader = contextClassLoader;
     }
 
-    private static String getEnvironmentFile() {
-        String propertyFile = System.getProperty(ENVIRONMENT_PROPERTY);
-        if (propertyFile == null) {
-            propertyFile = System.getenv(ENVIRONMENT_PROPERTY);
+    private static String getEnvironmentFile(ConfigurationSource[] sources) {
+        ConfigurationProvider config = new ConfigurationProviderBuilder()
+                .withConfigurationSource(new MergeConfigurationSource(sources)).build();
+        try {
+            return config.getProperty(ENVIRONMENT_PROPERTY, String.class);
+        } catch (NoSuchElementException e) {
+            return DEFAULT_ENVIRONMENT_NAME;
         }
-        if (propertyFile == null) {
-            propertyFile = DEFAULT_ENVIRONMENT_NAME;
-        }
-        return propertyFile;
     }
 
     /**
@@ -109,8 +108,16 @@ public class ConfigLoader {
             sources.add(defaultSource);
         }
 
+        // System environment variables
+        Properties environmentProperties = new Properties();
+        environmentProperties.putAll(System.getenv());
+        sources.add(new InMemoryConfigurationSource(environmentProperties));
+
+        // System property variables (-Dproperty=value)
+        sources.add(new SystemPropertiesConfigurationSource());
+
         // locate propertyFile inside class-loader resources
-        String propertyFile = getEnvironmentFile();
+        String propertyFile = getEnvironmentFile(sources.toArray(new ConfigurationSource[0]));
         if (propertyFile != null) {
             String propertyFilePath = propertyFile + ".properties";
             InputStream propertyResource = classLoader.getResourceAsStream(propertyFilePath);
@@ -122,19 +129,11 @@ public class ConfigLoader {
                     throw new IllegalStateException(String.format("Unable to load property file '%s': %s", propertyFilePath,
                             e.getMessage()), e);
                 }
-                sources.add(new InMemoryConfigurationSource(properties));
+                sources.add(1, new InMemoryConfigurationSource(properties));
             } else {
                 LOGGER.warn(String.format("Unable to find property file '%s' inside classpath.", propertyFilePath));
             }
         }
-
-        // System environment variables
-        Properties environmentProperties = new Properties();
-        environmentProperties.putAll(System.getenv());
-        sources.add(new InMemoryConfigurationSource(environmentProperties));
-
-        // System property variables (-Dproperty=value)
-        sources.add(new SystemPropertiesConfigurationSource());
 
         // Each property source overrides previously defined values (if any)
         ConfigurationSource source = new MergeConfigurationSource(sources.toArray(new ConfigurationSource[0]));

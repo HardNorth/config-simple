@@ -180,5 +180,5 @@ public class ConfigLoaderTest {
         assertThat(stringValue, equalTo("_"));
     }
 
-    // TODO: finish for one_in_another_placeholder, maximum_depth_placeholder, infinite_recursive_placeholder
+    // TODO: finish for one_in_another_placeholder, maximum_depth_placeholder, infinite_recursive_placeholder, specific_placeholders.properties
 }

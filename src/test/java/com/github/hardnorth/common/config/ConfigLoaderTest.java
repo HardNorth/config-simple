@@ -18,12 +18,10 @@ package com.github.hardnorth.common.config;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import java.util.NoSuchElementException;
 import java.util.Properties;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.emptyString;
-import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.*;
 
 public class ConfigLoaderTest {
 
@@ -74,8 +72,9 @@ public class ConfigLoaderTest {
         Properties props = new Properties();
         props.setProperty(ConfigLoader.ENVIRONMENT_PROPERTY, "placeholder_error");
         ConfigLoader loader = new ConfigLoader(props, ConfigLoaderTest.class.getClassLoader());
-        Assertions.assertThrows(IllegalArgumentException.class,
-                () -> loader.get().getProperty(PROPERTY_PREFIX + "placeholder.recursive.not.resolved", String.class));
+
+        String stringValue = loader.get().getProperty(PROPERTY_PREFIX + "placeholder.recursive.not.resolved", String.class);
+        assertThat(stringValue, equalTo("${${THERE_IS_NO_SUCH_PLACEHOLDER}_PLACEHOLDER}"));
     }
 
     @Test
@@ -83,8 +82,8 @@ public class ConfigLoaderTest {
         Properties props = new Properties();
         props.setProperty(ConfigLoader.ENVIRONMENT_PROPERTY, "placeholder");
         ConfigLoader loader = new ConfigLoader(props, ConfigLoaderTest.class.getClassLoader());
-        Assertions.assertThrows(NoSuchElementException.class,
-                () -> loader.get().getProperty(PROPERTY_PREFIX + "placeholder.not.resolved", String.class));
+        String stringValue = loader.get().getProperty(PROPERTY_PREFIX + "placeholder.not.resolved", String.class);
+        assertThat(stringValue, equalTo("${THERE_IS_NO_SUCH_PLACEHOLDER}"));
     }
 
     @Test
@@ -139,46 +138,48 @@ public class ConfigLoaderTest {
     }
 
     @Test
-    public void test_bare_placeholder_recursive_error() {
+    public void test_placeholder_special_cases_load() {
         Properties props = new Properties();
-        props.setProperty(ConfigLoader.ENVIRONMENT_PROPERTY, "bare_placeholder_error");
+        props.setProperty(ConfigLoader.ENVIRONMENT_PROPERTY, "specific_placeholders");
         ConfigLoader loader = new ConfigLoader(props, ConfigLoaderTest.class.getClassLoader());
 
-        IllegalArgumentException exc =
-                Assertions.assertThrows(IllegalArgumentException.class,
-                        () -> loader.get().getProperty(PROPERTY_PREFIX + "placeholder.bare.recursive.resolve", String.class));
-
-        assertThat(exc.getMessage(), equalTo("Unable to find placeholder value 'FIRST_PLACEHOLDER_PLACEHOLDER' for string: $$FIRST_PLACEHOLDER_PLACEHOLDER"));
+        String stringValue = loader.get().getProperty(PROPERTY_PREFIX + "placeholder.debian", String.class);
+        assertThat(stringValue, equalTo("+($debian_chroot)\\u@\\h:\\w\\$"));
     }
 
     @Test
-    public void test_bare_placeholder_value_not_found() {
+    public void test_placeholder_infinite_recursive() {
         Properties props = new Properties();
-        props.setProperty(ConfigLoader.ENVIRONMENT_PROPERTY, "bare_placeholder");
+        props.setProperty(ConfigLoader.ENVIRONMENT_PROPERTY, "infinite_recursive_placeholder");
         ConfigLoader loader = new ConfigLoader(props, ConfigLoaderTest.class.getClassLoader());
 
-        Assertions.assertThrows(NoSuchElementException.class,
-                () -> loader.get().getProperty(PROPERTY_PREFIX + "placeholder.bare.not.resolved", String.class));
+        IllegalStateException exc = Assertions.assertThrows(IllegalStateException.class,
+                () -> loader.get().getProperty(PROPERTY_PREFIX + "placeholder.recursive.one", String.class));
+        assertThat(exc.getCause().getClass(), equalTo(IllegalStateException.class));
+        assertThat(exc.getCause().getMessage(),
+                equalTo("Infinite loop in property interpolation of ${com.github.hardnorth.common.config.test.placeholder.recursive.one}: com.github.hardnorth.common.config.test.placeholder.recursive.one->com.github.hardnorth.common.config.test.placeholder.recursive.two"));
     }
 
     @Test
-    public void test_bare_placeholder_load() {
+    public void test_placeholder_infinite_recursive_10() {
         Properties props = new Properties();
-        props.setProperty(ConfigLoader.ENVIRONMENT_PROPERTY, "bare_placeholder");
+        props.setProperty(ConfigLoader.ENVIRONMENT_PROPERTY, "10_infinite_recursive_placeholder");
         ConfigLoader loader = new ConfigLoader(props, ConfigLoaderTest.class.getClassLoader());
 
-        String stringValue = loader.get().getProperty(PROPERTY_PREFIX + "placeholder.bare.default.value", String.class);
-        assertThat(stringValue, equalTo("my default value"));
-
-        stringValue = loader.get().getProperty(PROPERTY_PREFIX + "placeholder.bare.two.values", String.class);
-        assertThat(stringValue, equalTo("SECOND 2"));
-
-        stringValue = loader.get().getProperty(PROPERTY_PREFIX + "placeholder.bare.empty.value.space.after", String.class);
-        assertThat(stringValue, equalTo(" "));
-
-        stringValue = loader.get().getProperty(PROPERTY_PREFIX + "placeholder.bare.empty.value.char.before", String.class);
-        assertThat(stringValue, equalTo("_"));
+        IllegalStateException exc = Assertions.assertThrows(IllegalStateException.class,
+                () -> loader.get().getProperty(PROPERTY_PREFIX + "placeholder.depth.one", String.class));
+        assertThat(exc.getCause().getClass(), equalTo(IllegalStateException.class));
+        assertThat(exc.getCause().getMessage(),
+                startsWith("Infinite loop in property interpolation of ${com.github.hardnorth.common.config.test.placeholder.depth.nine}"));
     }
 
-    // TODO: finish for one_in_another_placeholder, maximum_depth_placeholder, infinite_recursive_placeholder, specific_placeholders.properties
+    @Test
+    public void test_maximum_depth_placeholder() {
+        Properties props = new Properties();
+        props.setProperty(ConfigLoader.ENVIRONMENT_PROPERTY, "maximum_depth_placeholder");
+        ConfigLoader loader = new ConfigLoader(props, ConfigLoaderTest.class.getClassLoader());
+
+        Integer intValue = loader.get().getProperty(PROPERTY_PREFIX + "placeholder.depth.one", Integer.class);
+        assertThat(intValue, equalTo(11));
+    }
 }

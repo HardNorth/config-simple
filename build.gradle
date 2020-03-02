@@ -18,7 +18,7 @@ java {
 
 compileTestJava.options.encoding = "UTF-8"
 group = "com.github.hardnorth.common"
-version = "1.0.0"
+version = "1.0.1-SNAPSHOT"
 
 dependencies {
     implementation 'ch.qos.logback:logback-classic:1.2.3'

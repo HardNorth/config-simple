@@ -17,7 +17,10 @@ package com.github.hardnorth.common.config;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 
+import java.io.IOException;
+import java.util.Objects;
 import java.util.Properties;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -29,7 +32,7 @@ public class ConfigLoaderTest {
 
     @Test
     public void test_default_file_load() {
-        ConfigLoader loader = new ConfigLoader(ConfigLoaderTest.class.getClassLoader());
+        ConfigLoader loader = new ConfigLoader(getClass().getClassLoader());
         String propertyValue = loader.get().getProperty(PROPERTY_PREFIX + "file", String.class);
         assertThat(propertyValue, equalTo(ConfigLoader.DEFAULT_ENVIRONMENT_NAME + ".properties"));
     }
@@ -38,7 +41,7 @@ public class ConfigLoaderTest {
     public void test_not_default_file_load() {
         Properties props = new Properties();
         props.setProperty(ConfigLoader.ENVIRONMENT_PROPERTY, "env");
-        ConfigLoader loader = new ConfigLoader(props, ConfigLoaderTest.class.getClassLoader());
+        ConfigLoader loader = new ConfigLoader(props, getClass().getClassLoader());
         String propertyValue = loader.get().getProperty(PROPERTY_PREFIX + "file", String.class);
         assertThat(propertyValue, equalTo("env.properties"));
     }
@@ -47,7 +50,7 @@ public class ConfigLoaderTest {
     public void test_different_types_of_property_load() {
         Properties props = new Properties();
         props.setProperty(ConfigLoader.ENVIRONMENT_PROPERTY, "different_types");
-        ConfigLoader loader = new ConfigLoader(props, ConfigLoaderTest.class.getClassLoader());
+        ConfigLoader loader = new ConfigLoader(props, getClass().getClassLoader());
         String stringValue = loader.get().getProperty(PROPERTY_PREFIX + "string", String.class);
         assertThat(stringValue, equalTo("my string property"));
 
@@ -71,7 +74,7 @@ public class ConfigLoaderTest {
     public void test_placeholder_load_error() {
         Properties props = new Properties();
         props.setProperty(ConfigLoader.ENVIRONMENT_PROPERTY, "placeholder_error");
-        ConfigLoader loader = new ConfigLoader(props, ConfigLoaderTest.class.getClassLoader());
+        ConfigLoader loader = new ConfigLoader(props, getClass().getClassLoader());
 
         String stringValue = loader.get().getProperty(PROPERTY_PREFIX + "placeholder.recursive.not.resolved", String.class);
         assertThat(stringValue, equalTo("${${THERE_IS_NO_SUCH_PLACEHOLDER}_PLACEHOLDER}"));
@@ -81,7 +84,7 @@ public class ConfigLoaderTest {
     public void test_no_placeholder_load() {
         Properties props = new Properties();
         props.setProperty(ConfigLoader.ENVIRONMENT_PROPERTY, "placeholder");
-        ConfigLoader loader = new ConfigLoader(props, ConfigLoaderTest.class.getClassLoader());
+        ConfigLoader loader = new ConfigLoader(props, getClass().getClassLoader());
         String stringValue = loader.get().getProperty(PROPERTY_PREFIX + "placeholder.not.resolved", String.class);
         assertThat(stringValue, equalTo("${THERE_IS_NO_SUCH_PLACEHOLDER}"));
     }
@@ -90,7 +93,7 @@ public class ConfigLoaderTest {
     public void test_placeholder_load() {
         Properties props = new Properties();
         props.setProperty(ConfigLoader.ENVIRONMENT_PROPERTY, "placeholder");
-        ConfigLoader loader = new ConfigLoader(props, ConfigLoaderTest.class.getClassLoader());
+        ConfigLoader loader = new ConfigLoader(props, getClass().getClassLoader());
         Boolean booleanValue = loader.get().getProperty(PROPERTY_PREFIX + "placeholder.boolean.value", Boolean.class);
         assertThat(booleanValue, equalTo(Boolean.TRUE));
 
@@ -117,7 +120,7 @@ public class ConfigLoaderTest {
     public void test_placeholder_default_value_load() {
         Properties props = new Properties();
         props.setProperty(ConfigLoader.ENVIRONMENT_PROPERTY, "placeholder_default");
-        ConfigLoader loader = new ConfigLoader(props, ConfigLoaderTest.class.getClassLoader());
+        ConfigLoader loader = new ConfigLoader(props, getClass().getClassLoader());
         String stringValue = loader.get().getProperty(PROPERTY_PREFIX + "placeholder.default.string", String.class);
         assertThat(stringValue, equalTo("my default string property"));
 
@@ -141,7 +144,7 @@ public class ConfigLoaderTest {
     public void test_placeholder_special_cases_load() {
         Properties props = new Properties();
         props.setProperty(ConfigLoader.ENVIRONMENT_PROPERTY, "specific_placeholders");
-        ConfigLoader loader = new ConfigLoader(props, ConfigLoaderTest.class.getClassLoader());
+        ConfigLoader loader = new ConfigLoader(props, getClass().getClassLoader());
 
         String stringValue = loader.get().getProperty(PROPERTY_PREFIX + "placeholder.debian", String.class);
         assertThat(stringValue, equalTo("+($debian_chroot)\\u@\\h:\\w\\$"));
@@ -151,7 +154,7 @@ public class ConfigLoaderTest {
     public void test_placeholder_infinite_recursive() {
         Properties props = new Properties();
         props.setProperty(ConfigLoader.ENVIRONMENT_PROPERTY, "infinite_recursive_placeholder");
-        ConfigLoader loader = new ConfigLoader(props, ConfigLoaderTest.class.getClassLoader());
+        ConfigLoader loader = new ConfigLoader(props, getClass().getClassLoader());
 
         IllegalStateException exc = Assertions.assertThrows(IllegalStateException.class,
                 () -> loader.get().getProperty(PROPERTY_PREFIX + "placeholder.recursive.one", String.class));
@@ -164,7 +167,7 @@ public class ConfigLoaderTest {
     public void test_placeholder_infinite_recursive_10() {
         Properties props = new Properties();
         props.setProperty(ConfigLoader.ENVIRONMENT_PROPERTY, "10_infinite_recursive_placeholder");
-        ConfigLoader loader = new ConfigLoader(props, ConfigLoaderTest.class.getClassLoader());
+        ConfigLoader loader = new ConfigLoader(props, getClass().getClassLoader());
 
         IllegalStateException exc = Assertions.assertThrows(IllegalStateException.class,
                 () -> loader.get().getProperty(PROPERTY_PREFIX + "placeholder.depth.one", String.class));
@@ -177,9 +180,40 @@ public class ConfigLoaderTest {
     public void test_maximum_depth_placeholder() {
         Properties props = new Properties();
         props.setProperty(ConfigLoader.ENVIRONMENT_PROPERTY, "maximum_depth_placeholder");
-        ConfigLoader loader = new ConfigLoader(props, ConfigLoaderTest.class.getClassLoader());
+        ConfigLoader loader = new ConfigLoader(props, getClass().getClassLoader());
 
         Integer intValue = loader.get().getProperty(PROPERTY_PREFIX + "placeholder.depth.one", Integer.class);
         assertThat(intValue, equalTo(11));
+    }
+
+    @Test
+    public void test_default_property_get_when_there_is_no_overrides() throws IOException {
+        Properties props = new Properties();
+        props.load(Objects.requireNonNull(getClass().getClassLoader().getResourceAsStream("value_override/default.properties")));
+        props.setProperty(ConfigLoader.ENVIRONMENT_PROPERTY, "value_override/file");
+
+        ConfigLoader loader = new ConfigLoader(props, getClass().getClassLoader());
+
+        String stringValue = loader.get().getProperty(PROPERTY_PREFIX + "default.value", String.class);
+        assertThat(stringValue, equalTo("my default value"));
+    }
+
+    @Test
+    public void test_default_property_override_with_an_environment_file() throws IOException {
+        Properties props = new Properties();
+        props.load(Objects.requireNonNull(getClass().getClassLoader().getResourceAsStream("value_override/default_file.properties")));
+        props.setProperty(ConfigLoader.ENVIRONMENT_PROPERTY, "value_override/file");
+
+        ConfigLoader loader = new ConfigLoader(props, getClass().getClassLoader());
+
+        String stringValue = loader.get().getProperty(PROPERTY_PREFIX + "file.value", String.class);
+        assertThat(stringValue, equalTo("my environment file value"));
+    }
+
+    @Test
+    @Timeout(value = 10)
+    public void test_environment_file_property_override_with_an_environment_variable() {
+
+
     }
 }

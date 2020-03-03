@@ -22,12 +22,8 @@ import org.junit.jupiter.api.Timeout;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.FileSystems;
-import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static org.apache.commons.lang3.StringUtils.joinWith;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -35,18 +31,7 @@ import static org.hamcrest.Matchers.equalTo;
 
 public class ConfigLoaderSeparateProcessTest {
 
-    private static final boolean IS_POSIX = FileSystems.getDefault().supportedFileAttributeViews().contains("posix");
-
-    private static String getClasspath() {
-        String rawClasspath = System.getProperty("java.class.path");
-        String pathSeparator = System.getProperty("path.separator");
-        String currentDir = System.getProperty("user.dir");
-        return Arrays.stream(rawClasspath.split(pathSeparator))
-                .map((s) -> s.contains(" ") ? IS_POSIX ? Paths.get(currentDir).relativize(Paths.get(s)).toString() : "\"" + s + "\"" : s)
-                .collect(Collectors.joining(pathSeparator));
-    }
-
-    private static ProcessBuilder getJunitProcess(Class<?> junitClass) throws IOException {
+    private static ProcessBuilder getJunitProcess(Class<?> junitClass) {
         String fileSeparator = System.getProperty("file.separator");
         String javaHome = System.getProperty("java.home");
         String executablePath = joinWith(fileSeparator, javaHome, "bin", "java");

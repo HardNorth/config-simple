@@ -1,6 +1,7 @@
 package com.github.hardnorth.common.config.feature;
 
 import com.github.hardnorth.common.config.ConfigLoader;
+import com.github.hardnorth.common.config.ConfigProvider;
 import org.junit.jupiter.api.Test;
 
 import java.util.Properties;
@@ -15,9 +16,9 @@ public class EvnVarOverrideTest {
         Properties props = new Properties();
         props.setProperty(ConfigLoader.ENVIRONMENT_PROPERTY, "value_override/env_override");
 
-        ConfigLoader loader = new ConfigLoader(props, getClass().getClassLoader());
+        ConfigProvider loader = new ConfigLoader(props, getClass().getClassLoader()).get();
 
-        String stringValue = loader.get().getProperty("TEST_ENV_VALUE", String.class);
+        String stringValue = loader.getProperty("TEST_ENV_VALUE", String.class);
         assertThat(stringValue, equalTo("my environment value"));
     }
 }

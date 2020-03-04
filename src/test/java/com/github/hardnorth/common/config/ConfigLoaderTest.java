@@ -33,6 +33,13 @@ public class ConfigLoaderTest {
     private static final String PROPERTY_PREFIX = "com.github.hardnorth.common.config.test.";
 
     @Test
+    public void test_default_value_provide() {
+        ConfigProvider provider = new ConfigLoader(getClass().getClassLoader()).get();
+        String stringValue = provider.getProperty(PROPERTY_PREFIX + "not.existing.value", String.class, "my not existing default value");
+        assertThat(stringValue, equalTo("my not existing default value"));
+    }
+
+    @Test
     public void test_default_file_load() {
         ConfigProvider provider = new ConfigLoader(getClass().getClassLoader()).get();
         String propertyValue = provider.getProperty(PROPERTY_PREFIX + "file", String.class);

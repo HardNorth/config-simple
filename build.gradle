@@ -55,7 +55,7 @@ task uberjar(type: Jar) {
 
 
     manifest {
-        attributes 'Implementation-Title': 'config-simple',
+        attributes 'Implementation-Title': project.name,
                 'Implementation-Version': archiveVersion,
                 'Built-By': System.getProperty('user.name'),
                 'Built-Date': new Date(),

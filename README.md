@@ -78,7 +78,7 @@ resolvers += "jitpack" at "https://jitpack.io"
 libraryDependencies += "com.github.HardNorth" % "config-simple" % "1.0.0"
 ```
 ## Usage
-### Common case
+### Basic case
 By standard behavior (if there is no specified `env` parameter somewhere in environment and system properties)
 the library seeks for `default.properties` file in classpath and reads it. So let's place such file,
 for example into `src/main/resources`.
@@ -93,11 +93,12 @@ import com.github.hardnorth.common.config.ConfigProvider;
 public class Config {
     private static final ConfigProvider PROVIDER = new ConfigLoader().get();
 
-    // Will be "my string value 1"
-    public static final String STRING_VALUE = PROVIDER.getProperty("test.string.value", String.class);
+    public static final String STRING_VALUE = PROVIDER.getProperty("test.placeholder.value", String.class);
 
-    private Config() {
-        // prohibit instantiation
+    // just for testing and examples, remove from real code
+    public static void main(String[] args) {
+        // Will output "my string value 1"
+        System.out.println(STRING_VALUE);
     }
 }
 ```
@@ -105,6 +106,7 @@ Now we can use our property anywhere in an application referring it as a constan
 ```java
 LOGGER.info(Config.STRING_VALUE); // Will log "my string value 1"
 ```
+### Type conversion
 The library also supports more complex type conversion:
 ```properties
 test.url.value=https://www.example.com
@@ -113,11 +115,79 @@ Such value will be set correctly:
 ```java
 public static final URL URL_VALUE = PROVIDER.getProperty("test.url.value", URL.class);
 ``` 
-And there is also possible to set a default value on the fly:
+### In-code default values
+There is also possible to set a default value on the fly:
 ```java
 // Will be "my default value"
 public static final String NOT_EXISTING_VALUE = PROVIDER.getProperty("test.not.existing.value", String.class, "my default value");
 ```
+### Environments
+The library provides environment switch. To switch on different property file use `env` parameter specified
+somewhere in environment or system properties, or bypassed as a default property to `ConfigLoader` constructor. 
+To demonstrate the feature let's update `default.properties` with additional value:
+```properties
+test.url.value=https://www.example.com
+```
+And add another property file, let's say `dev.properties` with:
+```properties
+test.url.value=http://localhost
+```
+Our new Config class:
+```java
+import com.github.hardnorth.common.config.ConfigLoader;
+import com.github.hardnorth.common.config.ConfigProvider;
+
+import java.net.URL;
+
+public class Config {
+    private static final ConfigProvider PROVIDER = new ConfigLoader().get();
+
+    public static final URL URL_VALUE = PROVIDER.getProperty("test.url.value", URL.class);
+
+    // just for testing and examples, remove from real code
+    public static void main(String[] args) {
+        // Will output an URL
+        System.out.println(URL_VALUE);
+    }
+}
+```
+Now we can run our class like this:
+```bash
+#!/bin/bash
+
+export env=dev
+java -cp config-simple-1.0.1-SNAPSHOT-all.jar:. Config
+```
+This code outputs: `http://localhost`.
+It also possible to bypass `env` param through System properties:
+```bash
+java -cp config-simple-1.0.1-SNAPSHOT-all.jar:. -Denv=dev Config
+``` 
+Will output: `http://localhost`.
+But:
+```bash
+#!/bin/bash
+
+export env=dev
+java -cp config-simple-1.0.1-SNAPSHOT-all.jar:. -Denv=default Config
+```
+Will output: `https://www.example.com`, since System properties have greater weight in the library than
+Environment variables. As was specified the inheritance/override chain looks like this (from lower weight to greater weight):
+`default properties <- file properties <- environment variables <- system properties`
+
+### Basic placeholders
+Let's update our `default.properties` file:
+```properties
+test.string.value=my string value 1
+test.placeholder.value=${test.string.value}
+```
+If we set new `test.placeholder.value` to a variable it will be resolved to "*my string value 1*".
+```java
+// Will be "my string value 1"
+public static final String PLACEHOLDER_VALUE = PROVIDER.getProperty("test.placeholder.value", String.class);
+``` 
+### Placeholder default value
+### Recursive Placeholders
 ### Gradle
 TBD
 ### Maven

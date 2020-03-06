@@ -28,7 +28,8 @@ Including recursive placeholders.
 
 ## Getting started
 ### Gradle
-**Step 1:** Add a repository into your basic *build.gradle* file:
+#### Step 1:
+Add a repository into your basic *build.gradle* file:
 ```groovy
 repositories {
 	...
@@ -44,14 +45,16 @@ allprojects {
     }
 }
 ``` 
-**Step 2:** Add dependency:
+#### Step 2:
+Add dependency:
 ```groovy
 dependencies {
     implementation 'com.github.HardNorth:config-simple:1.0.0'
 }
 ```
 ### Maven
-**Step 1:** Specify a repository:
+#### Step 1:
+Specify a repository:
 ```xml
 <repositories>
     <repository>
@@ -60,7 +63,8 @@ dependencies {
     </repository>
 </repositories>
 ```
-**Step 2:** Add a dependency:
+#### Step 2: 
+Add a dependency:
 ```xml
 <dependency>
     <groupId>com.github.HardNorth</groupId>
@@ -69,11 +73,13 @@ dependencies {
 </dependency>
 ``` 
 ### SBT
-**Step 1:** Add it in your *build.sbt* at the end of resolvers:
+#### Step 1:
+Add it in your *build.sbt* at the end of resolvers:
 ```sbt
 resolvers += "jitpack" at "https://jitpack.io"
 ```
-**Step 2:** Add a dependency:
+#### Step 1:
+Add a dependency:
 ```sbt
 libraryDependencies += "com.github.HardNorth" % "config-simple" % "1.0.0"
 ```
@@ -93,7 +99,7 @@ import com.github.hardnorth.common.config.ConfigProvider;
 public class Config {
     private static final ConfigProvider PROVIDER = new ConfigLoader().get();
 
-    public static final String STRING_VALUE = PROVIDER.getProperty("test.placeholder.value", String.class);
+    public static final String STRING_VALUE = PROVIDER.getProperty("test.string.value", String.class);
 
     // just for testing and examples, remove from real code
     public static void main(String[] args) {
@@ -116,6 +122,35 @@ Such value will be set correctly:
 public static final URL URL_VALUE = PROVIDER.getProperty("test.url.value", URL.class);
 ``` 
 ### In-code default values
+#### Option 1: 
+You can bypass default values to `ConfigLoader` constructor:
+```java
+import com.github.hardnorth.common.config.ConfigLoader;
+import com.github.hardnorth.common.config.ConfigProvider;
+
+import java.util.Properties;
+
+public class Config {
+    private static final Properties DEFAULT_PROPERTIES;
+
+    static {
+        DEFAULT_PROPERTIES = new Properties();
+        DEFAULT_PROPERTIES.put("test.default.value", "my default value");
+    }
+
+    private static final ConfigProvider PROVIDER = new ConfigLoader(DEFAULT_PROPERTIES).get();
+
+    public static final String VALUE = PROVIDER.getProperty("test.default.value", String.class);
+
+    // just for testing and examples, remove from real code
+    public static void main(String[] args) {
+        // Will output "my default value"
+        System.out.println(VALUE);
+    }
+}
+```
+
+#### Option 2:
 There is also possible to set a default value on the fly:
 ```java
 // Will be "my default value"
@@ -175,8 +210,10 @@ Will output: `https://www.example.com`, since System properties have greater wei
 Environment variables. As was specified the inheritance/override chain looks like this (from lower weight to greater weight):
 `default properties <- file properties <- environment variables <- system properties`
 
-### Basic placeholders
-Let's update our `default.properties` file:
+### Placeholders
+#### Basic case
+The library supports placeholders in a format `${placeholder.reference:placeholder.default.value}`. 
+Let's update our `default.properties` file to test it:
 ```properties
 test.string.value=my string value 1
 test.placeholder.value=${test.string.value}
@@ -186,8 +223,10 @@ If we set new `test.placeholder.value` to a variable it will be resolved to "*my
 // Will be "my string value 1"
 public static final String PLACEHOLDER_VALUE = PROVIDER.getProperty("test.placeholder.value", String.class);
 ``` 
-### Placeholder default value
-### Recursive Placeholders
+#### Default values
+TBD
+### Recursive values
+TBD
 ### Gradle
 TBD
 ### Maven

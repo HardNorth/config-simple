@@ -78,7 +78,7 @@ Add it in your *build.sbt* at the end of resolvers:
 ```sbt
 resolvers += "jitpack" at "https://jitpack.io"
 ```
-#### Step 1:
+#### Step 2:
 Add a dependency:
 ```sbt
 libraryDependencies += "com.github.HardNorth" % "config-simple" % "1.0.0"

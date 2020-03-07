@@ -253,9 +253,3 @@ SECOND_PLACEHOLDER=2
 placeholder.recursive.resolve=${${FIRST_PLACEHOLDER}_PLACEHOLDER}
 ```
 There is no special limits for recursion depth, but the library detects infinite recursion.
-### Gradle
-TBD
-### Maven
-TBD
-## Motivation
-TBD

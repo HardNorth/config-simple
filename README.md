@@ -223,10 +223,36 @@ If we set new `test.placeholder.value` to a variable it will be resolved to "*my
 // Will be "my string value 1"
 public static final String PLACEHOLDER_VALUE = PROVIDER.getProperty("test.placeholder.value", String.class);
 ``` 
+Placeholders can be a part of a value:
+```properties
+STRING_VALUE=my string property
+# Will be resolved into 'this is my string property' on get
+com.github.hardnorth.common.config.test.placeholder.part.value.string=this is ${STRING_VALUE}
+```
 #### Default values
-TBD
+In case if placeholder reference value does not exist you can specify default value inside a placeholder, after a 
+character `:`.
+```properties
+# Will return 'my default string property' on get
+test.placeholder.default.value=${THERE_IS_NO_SUCH_PLACEHOLDER:my default string property}
+```
+Default values can be also converted in different types:
+```properties
+placeholder.default.int=${THERE_IS_NO_SUCH_PLACEHOLDER:10003}
+```
+```java
+// Integer 10003
+public static final Integer INTEGER_VALUE = PROVIDER.getProperty("placeholder.default.int", Integer.class);
+```
 ### Recursive values
-TBD
+For complex property value generation it is possible to place placeholders recursively:
+```properties
+FIRST_PLACEHOLDER=SECOND
+SECOND_PLACEHOLDER=2
+# Will be resolved into '2' on get
+placeholder.recursive.resolve=${${FIRST_PLACEHOLDER}_PLACEHOLDER}
+```
+There is no special limits for recursion depth, but the library detects infinite recursion.
 ### Gradle
 TBD
 ### Maven

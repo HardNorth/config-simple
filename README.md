@@ -7,7 +7,6 @@
 **[Overview](#overview)**<br/>
 **[Getting started](#getting-started)**<br/>
 **[Usage](#usage)**<br/>
-**[Motivation](#motivation)**<br/>
 
 ## Overview
 The library is designed to provide a basic config-free *.property*-file based configuration management 

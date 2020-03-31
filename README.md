@@ -2,7 +2,7 @@
 [![Download](https://jitpack.io/v/HardNorth/config-simple.svg)](https://jitpack.io/#HardNorth/config-simple)
 [![Build Status](https://travis-ci.com/HardNorth/config-simple.svg?branch=master)](https://travis-ci.com/HardNorth/config-simple)
 [![License](https://img.shields.io/badge/License-Apache%202.0-brightgreen.svg)](https://opensource.org/licenses/Apache-2.0)
-[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2FHardNorth%2Fconfig-simple.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2FHardNorth%2Fconfig-simple?ref=badge_shield)
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2FHardNorth%2Fconfig-simple.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2FHardNorth%2Fconfig-simple?ref=badge_shield)
 
 ## Table of Contents
 **[Overview](#overview)**<br/>

@@ -253,3 +253,7 @@ SECOND_PLACEHOLDER=2
 placeholder.recursive.resolve=${${FIRST_PLACEHOLDER}_PLACEHOLDER}
 ```
 There is no special limits for recursion depth, but the library detects infinite recursion.
+
+
+## License
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2FHardNorth%2Fconfig-simple.svg?type=large)](https://app.fossa.io/projects/git%2Bgithub.com%2FHardNorth%2Fconfig-simple?ref=badge_large)

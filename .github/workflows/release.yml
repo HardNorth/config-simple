@@ -10,8 +10,6 @@ on:
       - README_TEMPLATE.md
       - gradle.properties
       - CHANGELOG.md
-      - build.gradle
-      - .travis.yml
 
 env:
   VERSION_FILE: gradle.properties

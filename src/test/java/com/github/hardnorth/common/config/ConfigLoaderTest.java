@@ -185,7 +185,7 @@ public class ConfigLoaderTest {
                 () -> provider.getProperty(PROPERTY_PREFIX + "placeholder.depth.one", String.class));
         assertThat(exc.getCause().getClass(), equalTo(IllegalStateException.class));
         assertThat(exc.getCause().getMessage(),
-                startsWith("Infinite loop in property interpolation of ${com.github.hardnorth.common.config.test.placeholder.depth.nine}"));
+                startsWith("Infinite loop in property interpolation of"));
     }
 
     @Test

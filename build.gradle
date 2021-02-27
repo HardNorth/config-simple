@@ -16,7 +16,6 @@ java {
     sourceCompatibility = JavaVersion.VERSION_1_8
     targetCompatibility = JavaVersion.VERSION_1_8
 }
-
 compileTestJava.options.encoding = "UTF-8"
 
 project.ext.githubUserName = project.hasProperty('githubUserName') ? githubUserName : ""

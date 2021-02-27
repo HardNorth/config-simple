@@ -63,7 +63,6 @@ test {
 
 task uberjar(type: Jar) {
     archiveClassifier.set("all")
-
     from files(sourceSets.main.output.classesDirs)
 
     from(configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }) {

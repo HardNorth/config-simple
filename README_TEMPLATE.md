@@ -244,6 +244,7 @@ placeholder.default.int=${THERE_IS_NO_SUCH_PLACEHOLDER:10003}
 // Integer 10003
 public static final Integer INTEGER_VALUE = PROVIDER.getProperty("placeholder.default.int", Integer.class);
 ```
+
 ### Recursive values
 For complex property value generation it is possible to place placeholders recursively:
 ```properties

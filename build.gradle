@@ -122,3 +122,7 @@ publishing {
         }
     }
 }
+
+def releaseDependencies = [publish]
+releaseDependencies.addAll(afterReleaseBuild.getDependsOn())
+afterReleaseBuild.setDependsOn(releaseDependencies)

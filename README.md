@@ -49,7 +49,7 @@ allprojects {
 Add dependency:
 ```groovy
 dependencies {
-    implementation 'com.github.HardNorth:config-simple:1.0.1'
+    implementation 'com.github.HardNorth:config-simple:1.0.0'
 }
 ```
 ### Maven
@@ -69,7 +69,7 @@ Add a dependency:
 <dependency>
     <groupId>com.github.HardNorth</groupId>
     <artifactId>config-simple</artifactId>
-    <version>1.0.1</version>
+    <version>1.0.0</version>
 </dependency>
 ``` 
 ### SBT
@@ -81,7 +81,7 @@ resolvers += "jitpack" at "https://jitpack.io"
 #### Step 2:
 Add a dependency:
 ```sbt
-libraryDependencies += "com.github.HardNorth" % "config-simple" % "1.0.1"
+libraryDependencies += "com.github.HardNorth" % "config-simple" % "1.0.0"
 ```
 ## Usage
 ### Basic case
@@ -244,6 +244,7 @@ placeholder.default.int=${THERE_IS_NO_SUCH_PLACEHOLDER:10003}
 // Integer 10003
 public static final Integer INTEGER_VALUE = PROVIDER.getProperty("placeholder.default.int", Integer.class);
 ```
+
 ### Recursive values
 For complex property value generation it is possible to place placeholders recursively:
 ```properties

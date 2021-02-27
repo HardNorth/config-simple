@@ -43,11 +43,10 @@ jobs:
         run: chmod +x gradlew
 
       - name: Setup git credentials
-        uses: oleksiyrudenko/gha-git-credentials@v2
-        with:
-          name: 'GitHub Action'
-          email: 'github-action@users.noreply.github.com'
-          token: ${{ secrets.GH_TOKEN }}
+        run: |
+          git config user.name 'Vadzim Hushchanskou'
+          git config user.email 'vadzim.hushchanskou@gmail.com'
+          git config user.password ${{ secrets.GITHUB_TOKEN }}
 
       - name: Release with Gradle
         id: release

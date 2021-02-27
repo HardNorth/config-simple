@@ -52,7 +52,7 @@ jobs:
         id: release
         run: |
           ./gradlew release -Prelease.useAutomaticVersion=true -Prelease.releaseVersion=${{ env.RELEASE_VERSION }} \
-          -Prelease.newVersion=${{ env.NEXT_VERSION }} -PgithubUserName=${{ env.GH_USER_NAME }} \
+          -Prelease.newVersion=${{ env.NEXT_VERSION }} -PgithubUserName=HardNorth \
           -PgithubToken=${{ secrets.GITHUB_TOKEN }}
 
       - name: Update README.md
@@ -87,7 +87,7 @@ jobs:
         id: createRelease
         uses: actions/create-release@v1
         env:
-          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           tag_name: ${{ env.RELEASE_VERSION }}
           release_name: Release ${{ env.RELEASE_VERSION }}

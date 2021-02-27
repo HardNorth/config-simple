@@ -49,7 +49,7 @@ allprojects {
 Add dependency:
 ```groovy
 dependencies {
-    implementation 'com.github.HardNorth:config-simple:1.0.0'
+    implementation 'com.github.HardNorth:config-simple:$LATEST_VERSION'
 }
 ```
 ### Maven
@@ -69,7 +69,7 @@ Add a dependency:
 <dependency>
     <groupId>com.github.HardNorth</groupId>
     <artifactId>config-simple</artifactId>
-    <version>1.0.0</version>
+    <version>$LATEST_VERSION</version>
 </dependency>
 ``` 
 ### SBT
@@ -81,7 +81,7 @@ resolvers += "jitpack" at "https://jitpack.io"
 #### Step 2:
 Add a dependency:
 ```sbt
-libraryDependencies += "com.github.HardNorth" % "config-simple" % "1.0.0"
+libraryDependencies += "com.github.HardNorth" % "config-simple" % "$LATEST_VERSION"
 ```
 ## Usage
 ### Basic case

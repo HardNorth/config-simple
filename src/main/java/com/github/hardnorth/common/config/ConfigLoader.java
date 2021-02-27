@@ -34,7 +34,7 @@ import java.util.Properties;
 /**
  * A config loading class from various sources. Reads property files, environment and system variables.
  * Each layer overrides previous values. The order is (from least to the most important):
- * property file <- environment variables <- system properties
+ * property file &lt;- environment variables &lt;- system properties
  */
 public class ConfigLoader {
     private static final Logger LOGGER = LoggerFactory.getLogger(ConfigLoader.class);

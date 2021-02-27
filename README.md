@@ -229,6 +229,7 @@ STRING_VALUE=my string property
 # Will be resolved into 'this is my string property' on get
 com.github.hardnorth.common.config.test.placeholder.part.value.string=this is ${STRING_VALUE}
 ```
+
 #### Default values
 In case if placeholder reference value does not exist you can specify default value inside a placeholder, after a 
 character `:`.

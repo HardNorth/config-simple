@@ -45,6 +45,8 @@ jobs:
       - name: Setup git credentials
         uses: oleksiyrudenko/gha-git-credentials@v2
         with:
+          name: 'GitHub Action'
+          email: 'github-action@users.noreply.github.com'
           token: ${{ secrets.GH_TOKEN }}
 
       - name: Release with Gradle

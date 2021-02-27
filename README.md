@@ -10,7 +10,7 @@
 **[Usage](#usage)**<br/>
 
 ## Overview
-The library is designed to provide a basic config-free *.property*-file based configuration management 
+The library is designed to provide a simple easy-to-use swift-setup *.property*-file based configuration management 
 functionality suitable to use with any JVM-based language.
  
 It supports:

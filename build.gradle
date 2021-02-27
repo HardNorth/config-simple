@@ -72,7 +72,6 @@ task uberjar(type: Jar) {
         exclude "META-INF/*.RSA"
     }
 
-
     manifest {
         attributes 'Implementation-Title': project.name,
                 'Implementation-Version': archiveVersion,

@@ -44,6 +44,7 @@ dependencies {
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.6.3'
     testImplementation 'org.junit.jupiter:junit-jupiter-engine:5.6.3'
     testImplementation 'org.junit.platform:junit-platform-runner:1.6.3'
+    testImplementation 'org.junit.platform:junit-platform-console-standalone:1.6.0'
     testImplementation 'org.hamcrest:hamcrest:2.2'
 }
 

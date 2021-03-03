@@ -11,7 +11,7 @@ buildscript {
 apply plugin: 'java-library'
 apply plugin: 'maven'
 apply plugin: 'maven-publish'
-apply plugin: net.researchgate.release.ReleasePlugin
+apply plugin: 'net.researchgate.release'
 
 repositories {
     mavenCentral()
